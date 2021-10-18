@@ -6,7 +6,7 @@
 /*   By: cbridget <cbridget@student.21-school.ru    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/17 15:05:55 by cbridget          #+#    #+#             */
-/*   Updated: 2021/10/17 17:40:05 by cbridget         ###   ########.fr       */
+/*   Updated: 2021/10/18 13:48:13 by cbridget         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,30 +16,36 @@ char	*get_next_line(int fd)
 {
 	static int		save_fd;
 	static int		tmp_fd;
-	char			letter[BUFFER_SIZE];//fix it
+	static char		letter[BUFFER_SIZE];//fix it
 	char			*result;
-	int				error;
+	static int		error;
 	unsigned int	i;
+	unsigned int	j;
 	unsigned int	size;
 
 	i = 0;
-	size = 5;
+	j = 0;
+	size = BUFFER_SIZE;
 	result = (char *)malloc(sizeof(char) * size);
 	if (!result)
 		return ((void *)0);
 	if (fd != save_fd)
+	{
 		tmp_fd = fd;
-	error = read(tmp_fd, letter, BUFFER_SIZE);
-	while (error && error != -1 && letter != '\n')
+		error = read(tmp_fd, letter, BUFFER_SIZE);
+	}
+	while (error && error != -1 && letter[j] != '\n')
 	{
 		if (i == size)
 		{
 			result = my_realloc(result, &size);
 			if (!result)
 				return ((void *)0);
+			error = read(tmp_fd, letter, BUFFER_SIZE);
+			j = 0;
 		}
-		result[i] = letter;
-		error = read(tmp_fd, letter, BUFFER_SIZE);
+		result[i] = letter[j];
+		j++;
 		i++;
 	}
 	end_logic(result, error, i);
@@ -56,8 +62,6 @@ void	end_logic(char *result, int error, int i)
 		free(result);
 		result = ((void *)0);
 	}
-	else if (i == BUFFER_SIZE)
-		result[i - 1] = '\0';
 	else
 	{
 		result[i] = '\n';
@@ -65,7 +69,7 @@ void	end_logic(char *result, int error, int i)
 	}
 }
 
-/*int	main()
+int	main()
 {
 	printf("%d\n", BUFFER_SIZE);
-}*/
+}
