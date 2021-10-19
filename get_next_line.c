@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: cbridget <cbridget@student.21-school.ru    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/10/17 15:05:55 by cbridget          #+#    #+#             */
-/*   Updated: 2021/10/18 13:48:13 by cbridget         ###   ########.fr       */
+/*   Created: 2021/10/19 10:11:05 by cbridget          #+#    #+#             */
+/*   Updated: 2021/10/19 12:30:05by cbridget         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,56 +20,93 @@ char	*get_next_line(int fd)
 	char			*result;
 	static int		error;
 	unsigned int	i;
-	unsigned int	j;
+	static unsigned int	j;
 	unsigned int	size;
 
 	i = 0;
-	j = 0;
 	size = BUFFER_SIZE;
+	if (fd != save_fd || !fd || j == BUFFER_SIZE)
+	{
+		if (fd != save_fd)
+			tmp_fd = fd;
+		error = read(tmp_fd, letter, BUFFER_SIZE);
+		j = 0;
+	}
+	//if (BUFFER_SIZE == 1 && j > 0)
+	//{
+	//	error = read(tmp_fd, letter, BUFFER_SIZE);
+	//	j = 0;
+	//}
 	result = (char *)malloc(sizeof(char) * size);
 	if (!result)
 		return ((void *)0);
-	if (fd != save_fd)
-	{
-		tmp_fd = fd;
-		error = read(tmp_fd, letter, BUFFER_SIZE);
-	}
-	while (error && error != -1 && letter[j] != '\n')
+	result[0] = '\0';
+	while (error && error != -1 && (i == 0 || (result[i - 1] && result[i - 1] != '\n')))
 	{
 		if (i == size)
 		{
 			result = my_realloc(result, &size);
 			if (!result)
 				return ((void *)0);
+		}
+		//if (error || letter[0] != '\n')
+		result[i] = letter[j];
+		j++;
+		if (j == BUFFER_SIZE && result[i] != '\n' && result[i])
+		{
 			error = read(tmp_fd, letter, BUFFER_SIZE);
 			j = 0;
 		}
-		result[i] = letter[j];
-		j++;
+		//printf("j=%d, %s, %d\n", j, letter, error);
+		//if (error || letter[0] != '\n')
+		//	result[i] = letter[j];
+		//j++;
 		i++;
 	}
-	end_logic(result, error, i);
+	printf("error=%d\n", error);
+	end_logic(&result, error, i);
 	save_fd = fd;
 	return (result);
 }
 
-void	end_logic(char *result, int error, int i)
+void	end_logic(char **result, int error, int i)
 {
-	if (error == 0)
-		result[i] = '\0';
-	else if (error == -1)
+	if (!(*result)[0] || error == -1)
 	{
-		free(result);
-		result = ((void *)0);
+		free(*result);
+		*result = (void *)0;
 	}
+	else if (!error)
+		(*result)[i] = '\0';
 	else
 	{
-		result[i] = '\n';
-		result[i + 1] = '\0';
+		if ((*result)[i - 1] != '\n')
+		{
+			(*result)[i] = '\n';
+			i++;
+		}
+		(*result)[i] = '\0';
 	}
 }
 
 int	main()
 {
-	printf("%d\n", BUFFER_SIZE);
+	int fd;
+	char test[100];
+	fd = open("43_no_nl", O_RDONLY);
+	//int i = 0;
+	int error;
+	error = read(fd, test, 10);
+	printf("%d", error);
+	/*while (i < 3)
+	{
+		test = get_next_line(fd);
+		printf("%s", test);
+		//printf("  i=%d\n", i);
+		i++;
+	}*/
+	//test = get_next_line(fd);
+	//printf("%s", test);
+	//if (test == NULL)
+	//	printf("yes");
 }
