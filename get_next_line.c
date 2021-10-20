@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: cbridget <cbridget@student.21-school.ru    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/10/19 10:11:05 by cbridget          #+#    #+#             */
-/*   Updated: 2021/10/19 12:30:05by cbridget         ###   ########.fr       */
+/*   Created: 2021/10/20 14:40:24 by cbridget          #+#    #+#             */
+/*   Updated: 2021/10/20 20:11:34 by cbridget         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,59 +14,46 @@
 
 char	*get_next_line(int fd)
 {
-	static int		save_fd;
-	static int		tmp_fd;
-	static char		letter[BUFFER_SIZE];//fix it
-	char			*result;
-	static int		error;
-	unsigned int	i;
+	static int			save_fd;
+	static int			tmp_fd;
+	static char			letter[BUFFER_SIZE];
+	static int			error;
 	static unsigned int	j;
-	unsigned int	size;
 
-	i = 0;
-	size = BUFFER_SIZE;
-	if (fd != save_fd || !fd || j == BUFFER_SIZE)
+	if (fd != save_fd || j == BUFFER_SIZE || j == (unsigned int)error)
 	{
 		if (fd != save_fd)
 			tmp_fd = fd;
 		error = read(tmp_fd, letter, BUFFER_SIZE);
 		j = 0;
 	}
-	//if (BUFFER_SIZE == 1 && j > 0)
-	//{
-	//	error = read(tmp_fd, letter, BUFFER_SIZE);
-	//	j = 0;
-	//}
-	result = (char *)malloc(sizeof(char) * size);
-	if (!result)
-		return ((void *)0);
-	result[0] = '\0';
-	while (error && error != -1 && (i == 0 || (result[i - 1] && result[i - 1] != '\n')))
+	save_fd = fd;
+	return (create_result(&j, &error, &tmp_fd, letter));
+}
+
+char	*clear_end(char *result)
+{
+	unsigned int	i;
+	char			*tmp;
+
+	i = 0;
+	while (result[i])
+		i ++;
+	tmp = (char *)malloc(sizeof(char) * (i + 1));
+	if (!tmp)
 	{
-		if (i == size)
-		{
-			result = my_realloc(result, &size);
-			if (!result)
-				return ((void *)0);
-		}
-		//if (error || letter[0] != '\n')
-		result[i] = letter[j];
-		j++;
-		if (j == BUFFER_SIZE && result[i] != '\n' && result[i])
-		{
-			error = read(tmp_fd, letter, BUFFER_SIZE);
-			j = 0;
-		}
-		//printf("j=%d, %s, %d\n", j, letter, error);
-		//if (error || letter[0] != '\n')
-		//	result[i] = letter[j];
-		//j++;
+		free(result);
+		return ((void *)0);
+	}
+	i = 0;
+	while (result[i])
+	{
+		tmp[i] = result[i];
 		i++;
 	}
-	printf("error=%d\n", error);
-	end_logic(&result, error, i);
-	save_fd = fd;
-	return (result);
+	tmp[i] = '\0';
+	free(result);
+	return (tmp);
 }
 
 void	end_logic(char **result, int error, int i)
@@ -89,24 +76,71 @@ void	end_logic(char **result, int error, int i)
 	}
 }
 
-int	main()
+char	*create_result(unsigned int *j, int *error, int *tmp_fd, char *letter)
+{
+	char			*result;
+	unsigned int	i;
+	unsigned int	size;
+
+	i = 0;
+	size = BUFFER_SIZE;
+	result = my_realloc((void *)0, &size, 1);
+	if (!result)
+		return ((void *)0);
+	while (*error && *error != -1 && (i == 0
+			|| (result[i - 1] && result[i - 1] != '\n')))
+	{
+		if (i == size)
+			result = my_realloc(result, &size, 0);
+		if (!result)
+			return ((void *)0);
+		result[i++] = letter[(*j)++];
+		if ((*j == BUFFER_SIZE || *j == (unsigned int)(*error))
+			&& result[i - 1] != '\n' && result[i - 1])
+		{
+			*error = read(*tmp_fd, letter, BUFFER_SIZE);
+			*j = 0;
+		}
+	}
+	return (some_more_function(i, size, result, *error));
+}
+
+char	*some_more_function(unsigned int i, unsigned int size,
+							char *result, int error)
+{
+	if (i == size)
+		result = my_realloc(result, &size, 0);
+	if (!result)
+		return ((void *)0);
+	end_logic(&result, error, i);
+	if (result)
+		result = clear_end(result);
+	return (result);
+}
+
+/*int	main()
 {
 	int fd;
-	char test[100];
+	char *test;
+	//test = "hello";
 	fd = open("43_no_nl", O_RDONLY);
-	//int i = 0;
-	int error;
-	error = read(fd, test, 10);
-	printf("%d", error);
-	/*while (i < 3)
+	int i = 0;
+	//while (test[i])
+	//	i++;
+	//printf("%d\n", i);
+	//int error;
+	//error = read(fd, test, 10);
+	//printf("%d", error);
+	while (i < 1)
 	{
 		test = get_next_line(fd);
 		printf("%s", test);
 		//printf("  i=%d\n", i);
 		i++;
-	}*/
+	}
 	//test = get_next_line(fd);
 	//printf("%s", test);
 	//if (test == NULL)
 	//	printf("yes");
 }
+*/
