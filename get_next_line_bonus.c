@@ -1,61 +1,72 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: cbridget <cbridget@student.21-school.ru    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/20 14:40:24 by cbridget          #+#    #+#             */
-/*   Updated: 2021/10/23 17:11:15 by cbridget         ###   ########.fr       */
+/*   Updated: 2021/10/23 16:39:40 by cbridget         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 char	*get_next_line(int fd)
 {
-	static int			tmp_fd;
-	static char			letter[BUFFER_SIZE];
-	static int			error;
-	static unsigned int	j;
+	static char			letter[FOPEN_MAX][BUFFER_SIZE];
+	unsigned int		i;
+	int					mod;
+	int					error;
 
-	if (fd != tmp_fd || j == BUFFER_SIZE || j == (unsigned int)error)
+	mod = 1;
+	error = -555;
+	i = 0;
+	if (fd < 0 || fd > FOPEN_MAX)
+		return ((void *)0);
+	while (i < BUFFER_SIZE)
 	{
-		if (fd != tmp_fd)
-			tmp_fd = fd;
-		error = read(tmp_fd, letter, BUFFER_SIZE);
-		j = 0;
+		if (letter[fd][i] != 0)
+		{
+			mod = 0;
+			break ;
+		}
+		i++;
 	}
-	return (create_result(&j, &error, &tmp_fd, letter));
+	if (mod)
+	{
+		error = read(fd, (letter[fd]), BUFFER_SIZE);
+		i = 0;
+	}
+	return (create_result(i, error, fd, letter));
 }
 
-char	*create_result(unsigned int *j, int *error, int *tmp_fd, char *letter)
+char	*create_result(unsigned int i, int error,
+			int fd, char letter[FOPEN_MAX][BUFFER_SIZE])
 {
 	char			*result;
-	unsigned int	i;
 	unsigned int	size;
+	unsigned int	j;
 
-	i = 0;
+	j = 0;
 	size = BUFFER_SIZE;
 	result = my_realloc((void *)0, &size, 1);
 	if (!result)
 		return ((void *)0);
-	while (*error && *error != -1 && (i == 0
-			|| (result[i - 1] && result[i - 1] != '\n')))
+	while (error && error != -1 && (j == 0
+			|| (result[j - 1] && result[j - 1] != '\n')))
 	{
-		if (i == size)
+		if (j == size)
 			result = my_realloc(result, &size, 0);
 		if (!result)
 			return ((void *)0);
-		result[i++] = letter[(*j)++];
-		if ((*j == BUFFER_SIZE || *j == (unsigned int)(*error))
-			&& result[i - 1] != '\n' && result[i - 1])
-		{
-			*error = read(*tmp_fd, letter, BUFFER_SIZE);
-			*j = 0;
-		}
+		result[j++] = letter[fd][i];
+		letter[fd][i++] = 0;
+		if ((i == BUFFER_SIZE || i == (unsigned int)error)
+			&& result[j - 1] != '\n' && result[j - 1])
+			error = my_read(fd, letter, &i);
 	}
-	return (some_more_functions(i, size, result, *error));
+	return (some_more_functions(j, size, result, error));
 }
 
 char	*some_more_functions(unsigned int i, unsigned int size,
