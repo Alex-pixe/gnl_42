@@ -6,7 +6,7 @@
 /*   By: cbridget <cbridget@student.21-school.ru    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/20 14:40:24 by cbridget          #+#    #+#             */
-/*   Updated: 2021/10/26 15:42:16 by cbridget         ###   ########.fr       */
+/*   Updated: 2021/10/26 15:54:55 by cbridget         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 char	*get_next_line(int fd)
 {
-	static char			letter[FOPEN_MAX][BUFFER_SIZE];
+	static char			letter[OPEN_MAX][BUFFER_SIZE];
 	unsigned int		i;
 	int					mod;
 	int					error;
@@ -22,7 +22,7 @@ char	*get_next_line(int fd)
 	mod = 1;
 	error = -555;
 	i = 0;
-	if (fd < 0 || fd > FOPEN_MAX)
+	if (fd < 0 || fd > OPEN_MAX)
 		return ((void *)0);
 	while (i < BUFFER_SIZE)
 	{
@@ -42,7 +42,7 @@ char	*get_next_line(int fd)
 }
 
 char	*create_result(unsigned int i, int error,
-			int fd, char letter[FOPEN_MAX][BUFFER_SIZE])
+			int fd, char letter[OPEN_MAX][BUFFER_SIZE])
 {
 	char			*result;
 	unsigned int	size;
