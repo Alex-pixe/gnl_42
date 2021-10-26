@@ -6,7 +6,7 @@
 /*   By: cbridget <cbridget@student.21-school.ru    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/17 16:36:40 by cbridget          #+#    #+#             */
-/*   Updated: 2021/10/20 20:19:02 by cbridget         ###   ########.fr       */
+/*   Updated: 2021/10/26 15:39:16 by cbridget         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ char	*my_realloc(char *result, unsigned int *size, int mod)
 		tmp = (char *)malloc(sizeof(char) * (*size));
 		if (!tmp)
 			return ((void *)0);
-		tmp[0] = '\0';
+		tmp[0] = -1;
 	}
 	else
 		tmp = my_realloc_two(result, size);

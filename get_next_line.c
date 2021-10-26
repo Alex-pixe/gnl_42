@@ -6,7 +6,7 @@
 /*   By: cbridget <cbridget@student.21-school.ru    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/20 14:40:24 by cbridget          #+#    #+#             */
-/*   Updated: 2021/10/23 17:11:15 by cbridget         ###   ########.fr       */
+/*   Updated: 2021/10/26 15:39:08 by cbridget         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,14 +98,14 @@ char	*clear_end(char *result)
 
 void	end_logic(char **result, int error, int i)
 {
-	if (!(*result)[0] || error == -1)
+	if ((*result)[0] == -1 || error == -1)
 	{
 		free(*result);
 		*result = (void *)0;
 	}
 	else if (!error)
 		(*result)[i] = '\0';
-	else
+	else if ((*result)[0])
 	{
 		if ((*result)[i - 1] != '\n')
 		{
