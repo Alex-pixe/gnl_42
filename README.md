@@ -7,3 +7,6 @@ also next read must start from the same place.
   
 Bonus part: it should only use one static varible and should work with different  
 file descriptors at the same time.
+  
+Usage:  
+You can compile it with flag -D BUFFER_SIZE='your buff size'!
