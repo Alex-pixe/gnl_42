@@ -20,7 +20,10 @@ file descriptors at the same time.
 * here you have all the necessary files.
 	+ to use it you need to add get_next_line.h header to your project.
 	+ compile your project with .c files from the root of this repo.
-* You can compile it with flag -D BUFFER_SIZE='your buff size'!
+* You can compile it with flag:
+	```bash
+	-D BUFFER_SIZE='your buff size'
+	```
   
 ### Tests:
 * Mandatory part
